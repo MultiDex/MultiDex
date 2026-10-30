@@ -35,3 +35,30 @@ jobs:
             src-tauri/target/release/multidex.exe
             src-tauri/target/release/bundle/nsis/*-setup.exe
           if-no-files-found: error
+
+  release:
+    needs: windows
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/download-artifact@v7
+        with:
+          name: MultiDex-windows-${{ github.sha }}
+          path: out
+
+      - name: Create release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          version=$(node -p "require('./src-tauri/tauri.conf.json').version")
+          mv out/multidex.exe "out/MultiDex_${version}_x64-portable.exe"
+          gh release create "v${version}-build.${{ github.run_number }}" \
+            "out/MultiDex_${version}_x64-portable.exe" out/bundle/nsis/*-setup.exe \
+            --target "${{ github.sha }}" \
+            --title "MultiDex ${version} (build ${{ github.run_number }})" \
+            --generate-notes \
+            --latest

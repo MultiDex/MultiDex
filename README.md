@@ -36,12 +36,12 @@ Bộ công cụ nhỏ hằng ngày của developer — format JSON, giải mã J
 
 ## Tải về
 
-Mỗi lần push hoặc mở pull request vào `main`, GitHub Actions build bản Windows:
+Tải bản mới nhất ở trang [Releases](https://github.com/MultiDex/MultiDex/releases/latest). Mỗi lần push lên `main` tạo một release mới tên `v<phiên bản>-build.<số>`, gồm:
 
-1. Mở tab [Actions](https://github.com/MultiDex/MultiDex/actions/workflows/build.yml) và chọn lần chạy mới nhất.
-2. Ở mục **Artifacts** cuối trang, tải `MultiDex-windows-<commit>`. Trong đó có:
-   - `multidex.exe` — chạy ngay, không cần cài.
-   - `MultiDex_<phiên bản>_x64-setup.exe` — bộ cài, có shortcut Start menu và mục gỡ cài đặt.
+- `MultiDex_<phiên bản>_x64-portable.exe` — chạy ngay, không cần cài.
+- `MultiDex_<phiên bản>_x64-setup.exe` — bộ cài, có shortcut Start menu và mục gỡ cài đặt.
+
+Pull request vào `main` cũng được build nhưng không tạo release; file nằm ở mục **Artifacts** của lần chạy trong tab [Actions](https://github.com/MultiDex/MultiDex/actions/workflows/build.yml).
 
 Ghi chú:
 
@@ -86,7 +86,7 @@ Lần đầu `npm run tauri dev` hoặc `npm run tauri build` mất vài phút �
 
 ```text
 .
-├── .github/workflows/build.yml   CI: test + build bản Windows, upload artifact
+├── .github/workflows/build.yml   CI: test, build bản Windows, tạo release khi push lên main
 ├── index.html                    Script đặt theme trước lần vẽ đầu
 ├── src/
 │   ├── App.tsx                   Khung app: điều hướng theo hash, phím tắt, theme, toast
