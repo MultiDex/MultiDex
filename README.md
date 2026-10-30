@@ -1,19 +1,121 @@
-# \<Hex\>Dex
+# \<Multi\>Dex
 
-Prototype giao diện cho \<Hex\>Dex — app desktop (Tauri + React + TypeScript) gom các công cụ nhỏ của developer, giao diện theo Fluent 2 / Windows 11. Đây chỉ là UI: mọi công cụ hiển thị dữ liệu mẫu cố định, chưa có logic xử lý hay Rust command. Font: Segoe UI Variable (có sẵn trên Windows) và Cascadia Mono (đóng gói); icon: Fluent System Icons (`@fluentui/react-icons`).
+[![Build](https://github.com/MultiDex/MultiDex/actions/workflows/build.yml/badge.svg)](https://github.com/MultiDex/MultiDex/actions/workflows/build.yml)
 
-## Chạy
+Bộ công cụ nhỏ hằng ngày của developer — format JSON, giải mã JWT, Base64, hash, cron, regex, UUID… — gom trong một app desktop chạy hoàn toàn offline. Giao diện theo Fluent 2 / Windows 11, dựng bằng Tauri 2 + React + TypeScript.
+
+> **Trạng thái: prototype giao diện.** Mọi công cụ đang hiển thị dữ liệu mẫu cố định. Chưa có logic xử lý thật và chưa có Rust command nào.
+
+## Tính năng
+
+- **9 công cụ mẫu** trong 4 danh mục:
+
+  | Danh mục            | Công cụ                               |
+  | ------------------- | ------------------------------------- |
+  | Converters          | Color Converter, Cron Parser          |
+  | Encoders / Decoders | Base64 Text, JWT Decoder, URL Encoder |
+  | Text                | JSON Formatter, Regex Tester          |
+  | Generators          | Hash Generator, UUID Generator        |
+
+- **Trang chủ**: Gần đây, Đã ghim, Tất cả; tìm công cụ theo tên, bí danh (`b64`, `jwt`, `cron`…) hoặc mô tả.
+- **Trang công cụ**: chế độ (Segmented), nhóm cấu hình (SettingsCard), InfoBar, khung Input/Output có tô màu cú pháp, nút sao chép kèm toast.
+- **Giao diện Sáng / Tối / theo hệ thống**, áp dụng trước lần vẽ đầu nên không bị nháy.
+- **Thanh điều hướng 3 chế độ** theo bề rộng cửa sổ: mở (≥ 1008px), chỉ icon (641–1007px), ẩn và mở dạng overlay (≤ 640px).
+- **Thanh tiêu đề tự vẽ**: kéo cửa sổ, double-click để phóng to, nút thu nhỏ / phóng to / đóng.
+
+### Phím tắt
+
+| Thao tác                     | Phím           |
+| ---------------------------- | -------------- |
+| Tìm công cụ                  | `Ctrl+K`       |
+| Mở kết quả tìm kiếm đầu tiên | `Enter`        |
+| Xoá ô tìm kiếm               | `Esc`          |
+| Mở/đóng thanh điều hướng     | `Ctrl+B`       |
+| Đổi giao diện Sáng ↔ Tối     | `Ctrl+Shift+L` |
+| Quay lại                     | `Alt+←`        |
+
+## Tải về
+
+Mỗi lần push hoặc mở pull request vào `main`, GitHub Actions build bản Windows:
+
+1. Mở tab [Actions](https://github.com/MultiDex/MultiDex/actions/workflows/build.yml) và chọn lần chạy mới nhất.
+2. Ở mục **Artifacts** cuối trang, tải `MultiDex-windows-<commit>`. Trong đó có:
+   - `multidex.exe` — chạy ngay, không cần cài.
+   - `MultiDex_<phiên bản>_x64-setup.exe` — bộ cài, có shortcut Start menu và mục gỡ cài đặt.
+
+Ghi chú:
+
+- File chưa được ký số, nên lần đầu mở Windows SmartScreen sẽ cảnh báo. Chọn **More info → Run anyway**.
+- Cần Microsoft Edge WebView2 Runtime. Windows 11 có sẵn; bộ cài tự tải về trên Windows 10 nếu thiếu.
+
+## Phát triển
+
+### Yêu cầu
+
+- [Node.js](https://nodejs.org/) 24
+- [Rust](https://rustup.rs/) stable (≥ 1.85, vì crate dùng edition 2024)
+- Windows: Visual Studio hoặc Build Tools với workload **Desktop development with C++**, và WebView2
+- macOS / Linux: xem [Tauri prerequisites](https://tauri.app/start/prerequisites/)
+
+### Lệnh
 
 ```sh
 npm install
-npm run dev         # giao diện trên trình duyệt: http://localhost:1420
-npm run tauri dev   # cửa sổ desktop (cần Rust + Visual Studio "Desktop development with C++")
-npm test            # test highlighter
 ```
 
-## Cấu trúc
+| Lệnh                   | Việc làm                                                    |
+| ---------------------- | ----------------------------------------------------------- |
+| `npm run dev`          | Chạy giao diện trên trình duyệt tại `http://localhost:1420` |
+| `npm run tauri dev`    | Chạy app trong cửa sổ desktop, tự tải lại khi sửa code      |
+| `npm run tauri build`  | Build bản phát hành (exe + bộ cài)                          |
+| `npm test`             | Chạy test (`node --test`)                                   |
+| `npm run format`       | Format code bằng Prettier                                   |
+| `npm run format:check` | Kiểm tra format, không sửa file                             |
 
-- `src/styles/tokens.css` — sinh từ `tokens.json` của design system; `bundle.css` — copy nguyên từ design system (lớp `dx-*`); `app.css` — bổ sung bố cục.
-- `src/data/tools.ts` — danh sách công cụ và dữ liệu mẫu.
-- `src/components/`, `src/pages/` — TitleBar, Sidebar, ToolCard, CodePanel, SettingRow; trang Home, ToolPage, Settings.
-- `src-tauri/` — khung Tauri mặc định; chỉ chỉnh `tauri.conf.json` (cửa sổ không viền 1280×800) và quyền cửa sổ trong `capabilities/default.json`.
+Lần đầu `npm run tauri dev` hoặc `npm run tauri build` mất vài phút để biên dịch Rust; các lần sau nhanh hơn nhiều.
+
+### Kết quả build
+
+| File                                                        | Dùng để     |
+| ----------------------------------------------------------- | ----------- |
+| `src-tauri/target/release/multidex.exe`                     | Chạy ngay   |
+| `src-tauri/target/release/bundle/nsis/MultiDex_*-setup.exe` | Bộ cài NSIS |
+| `src-tauri/target/release/bundle/msi/MultiDex_*.msi`        | Bộ cài MSI  |
+
+## Cấu trúc thư mục
+
+```text
+.
+├── .github/workflows/build.yml   CI: test + build bản Windows, upload artifact
+├── index.html                    Script đặt theme trước lần vẽ đầu
+├── src/
+│   ├── App.tsx                   Khung app: điều hướng theo hash, phím tắt, theme, toast
+│   ├── components/               TitleBar, Sidebar, ToolCard, CodePanel, SettingRow
+│   ├── pages/                    Home, ToolPage, Settings
+│   ├── data/tools.ts             Danh sách công cụ và dữ liệu mẫu
+│   ├── lib/                      theme.ts (Sáng/Tối/Hệ thống), highlight.ts (tô màu JSON)
+│   └── styles/                   tokens.css, bundle.css, app.css
+├── src-tauri/                    Khung Tauri: tauri.conf.json, capabilities/, src/
+└── tests/                        Test chạy bằng node --test
+```
+
+## Giao diện
+
+- `src/styles/tokens.css` — token màu, khoảng cách, bo góc, bóng theo tên theme resource của WinUI (`text-primary`, `fill-accent-default`, `bg-card`…). Theme đổi bằng thuộc tính `data-theme` trên `<html>`.
+- `src/styles/bundle.css` — style component, lớp có tiền tố `dx-`.
+- `src/styles/app.css` — phần bố cục riêng của app.
+- Mọi màu đều lấy từ token, không viết mã màu cứng, để cả hai theme luôn đúng.
+- Font: Segoe UI Variable (có sẵn trên Windows, không đóng gói) và Cascadia Mono (đóng gói). Icon: Fluent System Icons.
+
+## Hạn chế đã biết
+
+- Công cụ chỉ hiển thị dữ liệu mẫu; tuỳ chọn và nút hành động chưa làm thay đổi kết quả.
+- Chưa có hiệu ứng nền Mica, Snap Layouts và màu nhấn theo Windows (cả ba cần code Rust).
+- ToolTip đang dùng thuộc tính `title` của trình duyệt.
+- Icon app vẫn là icon mặc định của Tauri. Đổi bằng `npm run tauri icon <ảnh-png-1024x1024>`.
+
+## Giấy phép bên thứ ba
+
+- [Cascadia Mono](https://github.com/microsoft/cascadia-code) — SIL Open Font License 1.1
+- [Fluent System Icons](https://github.com/microsoft/fluentui-system-icons) — MIT
+- [Tauri](https://tauri.app/) — MIT / Apache-2.0
