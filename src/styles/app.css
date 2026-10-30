@@ -1,0 +1,110 @@
+.fui-Icon.dx-icon {
+  fill: currentColor;
+  stroke: none;
+}
+.dx-shell__main {
+  position: relative;
+}
+.dx-nav--hidden {
+  display: none;
+}
+.dx-nav--overlay {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 20;
+  background: var(--bg-flyout);
+  border: 1px solid var(--stroke-surface);
+  border-radius: 0 var(--radius-xlarge) var(--radius-xlarge) 0;
+  box-shadow: var(--shadow-16);
+}
+.dx-page {
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+  animation: dx-enter 333ms cubic-bezier(0, 0, 0, 1);
+}
+@keyframes dx-enter {
+  from {
+    opacity: 0;
+    transform: translateY(28px);
+  }
+}
+.dx-toolpage {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+.dx-toolpage .dx-split {
+  flex: 1;
+}
+.dx-pagehead .dx-lead {
+  margin-top: 2px;
+}
+.dx-search input::-webkit-search-cancel-button {
+  display: none;
+}
+.dx-split > .dx-panel {
+  min-width: 0;
+}
+.dx-split--single {
+  grid-template-columns: 1fr;
+}
+.dx-stack {
+  margin-top: var(--space-xxl);
+}
+.dx-setting .dx-input:not(select) {
+  width: 240px;
+}
+.dx-pinned {
+  color: var(--text-accent);
+}
+.dx-toast-wrap {
+  position: fixed;
+  right: var(--space-l);
+  bottom: var(--space-l);
+  z-index: 30;
+}
+.dx-expander {
+  border-radius: var(--radius-medium);
+  border: 1px solid var(--stroke-card);
+  background: var(--bg-card);
+  background-clip: padding-box;
+  overflow: hidden;
+}
+.dx-expander > summary {
+  list-style: none;
+}
+.dx-expander > summary::-webkit-details-marker {
+  display: none;
+}
+.dx-expander > summary.dx-setting {
+  border: 0;
+  background: transparent;
+}
+.dx-expander__chev {
+  width: 12px;
+  height: 12px;
+  transition: transform 167ms cubic-bezier(0, 0, 0, 1);
+}
+.dx-expander[open] .dx-expander__chev {
+  transform: rotate(180deg);
+}
+.dx-expander__row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-l);
+  min-height: 52px;
+  padding: var(--space-s) var(--space-l) var(--space-s) 52px;
+  border-top: 1px solid var(--stroke-divider);
+  background: var(--bg-card-secondary);
+}
+.dx-expander__row > :first-child {
+  flex: 1;
+}
+@media (max-width: 899px) {
+  .dx-split {
+    grid-template-columns: 1fr;
+  }
+}

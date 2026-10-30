@@ -1,0 +1,37 @@
+name: Build
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: src-tauri
+
+      - run: npm ci
+      - run: npm test
+      - run: npm run tauri build -- --bundles nsis
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: MultiDex-windows-${{ github.sha }}
+          path: |
+            src-tauri/target/release/multidex.exe
+            src-tauri/target/release/bundle/nsis/*-setup.exe
+          if-no-files-found: error
