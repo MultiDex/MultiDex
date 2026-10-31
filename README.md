@@ -1,3 +1,5 @@
+<img src="src-tauri/icons/icon.svg" alt="" width="96" height="96" />
+
 # \<Multi\>Dex
 
 [![Build](https://github.com/MultiDex/MultiDex/actions/workflows/build.yml/badge.svg)](https://github.com/MultiDex/MultiDex/actions/workflows/build.yml)
@@ -106,13 +108,13 @@ Lần đầu `npm run tauri dev` hoặc `npm run tauri build` mất vài phút �
 - `src/styles/app.css` — phần bố cục riêng của app.
 - Mọi màu đều lấy từ token, không viết mã màu cứng, để cả hai theme luôn đúng.
 - Font: Segoe UI Variable (có sẵn trên Windows, không đóng gói) và Cascadia Mono (đóng gói). Icon: Fluent System Icons.
+- Logo app: nguồn là `src-tauri/icons/icon.svg`, `public/favicon.svg` là bản sao dùng cho tab trình duyệt. Sửa logo xong thì chạy `npx tauri icon src-tauri/icons/icon.svg` để sinh lại các file `.ico`, `.icns`, `.png`, rồi xoá thư mục `android/` và `ios/` lệnh này tạo thêm. Cargo không tự build lại khi chỉ có icon đổi, nên trước lần build kế tiếp chạy `cargo clean --manifest-path src-tauri/Cargo.toml -p multidex` để exe nhận icon mới.
 
 ## Hạn chế đã biết
 
 - Công cụ chỉ hiển thị dữ liệu mẫu; tuỳ chọn và nút hành động chưa làm thay đổi kết quả.
 - Chưa có hiệu ứng nền Mica, Snap Layouts và màu nhấn theo Windows (cả ba cần code Rust).
 - ToolTip đang dùng thuộc tính `title` của trình duyệt.
-- Icon app vẫn là icon mặc định của Tauri. Đổi bằng `npm run tauri icon <ảnh-png-1024x1024>`.
 
 ## Giấy phép bên thứ ba
 

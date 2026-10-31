@@ -30,7 +30,7 @@ jobs:
 
       - uses: actions/upload-artifact@v7
         with:
-          name: MultiDex-windows-${{ github.sha }}
+          name: MultiDex${{ github.sha }}
           path: |
             src-tauri/target/release/multidex.exe
             src-tauri/target/release/bundle/nsis/*-setup.exe
@@ -47,7 +47,7 @@ jobs:
 
       - uses: actions/download-artifact@v7
         with:
-          name: MultiDex-windows-${{ github.sha }}
+          name: MultiDex${{ github.sha }}
           path: out
 
       - name: Create release
