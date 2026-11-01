@@ -404,3 +404,50 @@
   font: 12px/18px var(--font-mono);
   white-space: pre;
 }
+.dx-kbd {
+  padding: 1px var(--space-xs);
+  border: 1px solid var(--stroke-control-default);
+  border-bottom-width: 2px;
+  border-radius: var(--radius-medium);
+  background: var(--fill-subtle-tertiary);
+  color: var(--text-secondary);
+  font: 11px/16px var(--font-mono);
+}
+.dx-wi__check {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+  color: var(--text-secondary);
+  font-size: 12px;
+  line-height: 16px;
+  cursor: pointer;
+}
+.dx-wi__treefind {
+  position: relative;
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  flex: 1;
+  max-width: 320px;
+}
+.dx-wi__treefind .dx-icon {
+  position: absolute;
+  left: var(--space-s);
+  color: var(--text-tertiary);
+  pointer-events: none;
+}
+.dx-wi__treefind .dx-input {
+  width: 100%;
+  height: var(--control-h-sm);
+  padding-left: 30px;
+}
+.dx-wi__treefind input::-webkit-search-cancel-button {
+  display: none;
+}
+.dx-uia__snippet-bar .dx-combo {
+  flex: 1;
+}
+.dx-wi__log {
+  flex: none;
+  max-height: 200px;
+}

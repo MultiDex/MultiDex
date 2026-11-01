@@ -10,9 +10,12 @@ Khác với app web, phần mềm native (Win32, WPF, WinForms, UWP) không có 
 
 ## Tính năng
 
+- **Chộp element dưới con trỏ bằng `Ctrl+Alt+I`** — rê chuột lên control bất kỳ của app nào rồi bấm, WinDex tự mở đúng cửa sổ và chọn đúng node. Phím tắt toàn cục, không cần WinDex đang hoạt động
+- **Khung đỏ vẽ lên element** đang chọn, chuột xuyên qua được nên không chặn thao tác
+- **Tìm trong cây** theo Name, AutomationId, ControlType — chỉ hiện nhánh có kết quả
 - **Pane cửa sổ bên trái**: liệt kê cửa sổ top-level đang mở kèm class name và process id, có ô lọc theo tên/class/pid; bấm một cửa sổ là soi ngay
 - **Khu làm việc bên phải**: cây UI Automation và bảng thao tác của element đang chọn
-- Duyệt cây UI Automation theo độ sâu chọn được: 3 / 6 / 12 / 25 cấp
+- Duyệt **toàn bộ** cây UI Automation, có trần an toàn 500 node mỗi cấp và 20.000 node cho cả cây
 - Mỗi node hiện `ControlType`, `Name`, `AutomationId`; rê chuột xem class name và kích thước
 - Bấm vào `AutomationId` để sao chép thẳng vào script
 - **Thao tác được với element đang chọn**, tuỳ theo pattern mà nó hỗ trợ:
@@ -22,16 +25,20 @@ Khác với app web, phần mềm native (Win32, WPF, WinForms, UWP) không có 
   - `Focus` — đưa con trỏ vào element
   - `Gửi phím` — focus rồi gõ thật, hỗ trợ `{enter}`, `{tab}`, `{esc}`
 - **Chụp ảnh element** đang chọn (PNG, đúng vùng bounding rectangle). Dùng `PrintWindow` nên **không cần đưa cửa sổ ra trước, không cướp chuột hay focus**
-- **Sinh sẵn đoạn Python** cho thư viện `uiautomation`, bấm một nút là copy dán thẳng vào script
+- **Sinh sẵn đoạn mã cho 4 hệ**: Python `uiautomation`, Python `pywinauto`, C# `FlaUI` và PowerShell — chọn trong danh sách rồi copy
+- **Xuất cả cây ra JSON** để diff giữa hai lần chạy, biết app đổi gì sau khi cập nhật
+- **Nhật ký focus**: theo dõi mỗi lần focus bàn phím chuyển sang element khác, xem app phản ứng gì khi thao tác
+- **Mở lại với quyền admin** ngay trong app khi cần soi app chạy elevated
 - Giao diện Sáng / Tối / theo hệ thống, áp dụng trước lần vẽ đầu nên không bị nháy
 - Thanh tiêu đề tự vẽ: kéo cửa sổ, double-click để phóng to, nút thu nhỏ / phóng to / đóng
 
 ### Phím tắt
 
-| Thao tác                 | Phím           |
-| ------------------------ | -------------- |
-| Đổi giao diện Sáng ↔ Tối | `Ctrl+Shift+L` |
-| Quay lại                 | `Alt+←`        |
+| Thao tác                  | Phím           |
+| ------------------------- | -------------- |
+| Chộp element dưới con trỏ | `Ctrl+Alt+I`   |
+| Đổi giao diện Sáng ↔ Tối  | `Ctrl+Shift+L` |
+| Quay lại                  | `Alt+←`        |
 
 ## Tải về
 
@@ -122,11 +129,9 @@ Việc đọc UI Automation phải chạy trong `spawn_blocking`: nó chặn lu�
 
 ## Hạn chế đã biết
 
-- **App chạy quyền admin không hiện trong danh sách** trừ khi \<Win\>Dex cũng chạy admin.
-- **Chưa có khung highlight** vẽ lên cửa sổ đang soi; cần cửa sổ overlay Win32 `WS_EX_LAYERED`.
+- **App chạy quyền admin không hiện trong danh sách** trừ khi <Win>Dex cũng chạy admin — dùng nút **Mở lại với quyền admin** ngay trong app.
 - **Thanh tác vụ và vài bề mặt shell khác của Windows không chụp được.** Ảnh dùng `PrintWindow`, bảo chính cửa sổ tự vẽ ra bitmap nên cửa sổ bị che vẫn chụp đúng; riêng các bề mặt shell trả về khung trống, lúc đó app báo lỗi thay vì đưa ra ảnh sai.
 - Cây lấy hết các cấp, nhưng có hai trần an toàn: tối đa **500 node mỗi cấp** và **20.000 node cho cả cây**. Chạm trần thì node đó hiện dòng `… đã cắt bớt`.
-- **Chưa tìm được trong cây**; phải tự bung ra xem.
 - **Thao tác tác động thật lên app đích.** `Gửi phím` focus element rồi gõ vào đó như người dùng; gõ nhầm cửa sổ là mất dữ liệu thật. Soi kỹ trước khi bấm.
 - Cây không tự cập nhật sau khi thao tác; nếu app đổi giao diện thì bấm **Soi cửa sổ** lại.
 - Phần tử vẽ tay bằng DirectX hoặc app Java cũ có thể không xuất hiện trong cây UIA. Lúc đó cần công cụ ở tầng thấp hơn như Spy++.
