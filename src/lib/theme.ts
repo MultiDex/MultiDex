@@ -1,6 +1,6 @@
 export type Mode = "system" | "light" | "dark";
 
-const KEY = "multidex.theme";
+const KEY = "windex.theme";
 const mq = window.matchMedia("(prefers-color-scheme: dark)");
 
 export function loadMode(): Mode {

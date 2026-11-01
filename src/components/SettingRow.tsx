@@ -1,6 +1,5 @@
-import { useState, type ReactNode } from "react";
+import type { ReactNode } from "react";
 import { ChevronDownRegular, type FluentIcon } from "@fluentui/react-icons";
-import type { Option } from "../data/tools";
 
 type RowProps = { icon?: FluentIcon; title: string; desc?: string; children: ReactNode };
 
@@ -45,36 +44,5 @@ export function Combo<T extends string>({ label, options, value, onChange }: Com
       </select>
       <ChevronDownRegular className="dx-icon" />
     </span>
-  );
-}
-
-export function OptionRow({ option }: { option: Option }) {
-  const [seg, setSeg] = useState(option.kind === "seg" ? option.value : 0);
-  const [on, setOn] = useState(option.kind === "switch" && option.on);
-  return (
-    <SettingRow icon={option.icon} title={option.title} desc={option.desc}>
-      {option.kind === "seg" && <Seg label={option.title} items={option.items} value={seg} onChange={setSeg} />}
-      {option.kind === "switch" && (
-        <label className="dx-switch dx-switch--end">
-          <input
-            type="checkbox"
-            role="switch"
-            checked={on}
-            onChange={(e) => setOn(e.target.checked)}
-            aria-label={option.title}
-          />
-          <span className="dx-switch__state">{on ? "Bật" : "Tắt"}</span>
-        </label>
-      )}
-      {option.kind === "input" && (
-        <input
-          className="dx-input dx-input--mono"
-          defaultValue={option.value}
-          placeholder={option.placeholder}
-          aria-label={option.title}
-          spellCheck={false}
-        />
-      )}
-    </SettingRow>
   );
 }

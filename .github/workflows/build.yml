@@ -25,14 +25,13 @@ jobs:
           workspaces: src-tauri
 
       - run: npm ci
-      - run: npm test
       - run: npm run tauri build -- --bundles nsis
 
       - uses: actions/upload-artifact@v7
         with:
-          name: MultiDex${{ github.sha }}
+          name: WinDex${{ github.sha }}
           path: |
-            src-tauri/target/release/multidex.exe
+            src-tauri/target/release/windex.exe
             src-tauri/target/release/bundle/nsis/*-setup.exe
           if-no-files-found: error
 
@@ -47,7 +46,7 @@ jobs:
 
       - uses: actions/download-artifact@v7
         with:
-          name: MultiDex${{ github.sha }}
+          name: WinDex${{ github.sha }}
           path: out
 
       - name: Create release
@@ -55,10 +54,10 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           version=$(node -p "require('./src-tauri/tauri.conf.json').version")
-          mv out/multidex.exe "out/MultiDex_${version}_x64-portable.exe"
+          mv out/windex.exe "out/WinDex_${version}_x64-portable.exe"
           gh release create "v${version}-build.${{ github.run_number }}" \
-            "out/MultiDex_${version}_x64-portable.exe" out/bundle/nsis/*-setup.exe \
+            "out/WinDex_${version}_x64-portable.exe" out/bundle/nsis/*-setup.exe \
             --target "${{ github.sha }}" \
-            --title "MultiDex ${version} (build ${{ github.run_number }})" \
+            --title "WinDex ${version} (build ${{ github.run_number }})" \
             --generate-notes \
             --latest

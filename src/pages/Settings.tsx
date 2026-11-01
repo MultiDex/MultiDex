@@ -1,32 +1,14 @@
 import type { MouseEvent } from "react";
-import { ChevronDownRegular, ClipboardRegular, ColorRegular, InfoRegular, PlayRegular } from "@fluentui/react-icons";
+import { ChevronDownRegular, ColorRegular, InfoRegular } from "@fluentui/react-icons";
 import { isTauri } from "@tauri-apps/api/core";
 import { openUrl } from "@tauri-apps/plugin-opener";
-import type { Option } from "../data/tools";
 import type { Mode } from "../lib/theme";
-import { Combo, OptionRow, SettingRow } from "../components/SettingRow";
+import { Combo, SettingRow } from "../components/SettingRow";
 
 const MODES: [Mode, string][] = [
   ["light", "Sáng"],
   ["dark", "Tối"],
   ["system", "Dùng cài đặt hệ thống"],
-];
-
-const BEHAVIOR: Option[] = [
-  {
-    kind: "switch",
-    icon: PlayRegular,
-    title: "Tự chạy khi thay đổi",
-    desc: "Chạy lại công cụ ngay khi input hoặc tuỳ chọn đổi",
-    on: true,
-  },
-  {
-    kind: "switch",
-    icon: ClipboardRegular,
-    title: "Gợi ý công cụ từ clipboard",
-    desc: "Đánh dấu công cụ phù hợp khi clipboard có JWT, JSON hoặc URL",
-    on: true,
-  },
 ];
 
 const SOURCE_URL = "https://github.com/MultiDex/MultiDex";
@@ -47,18 +29,13 @@ export function Settings({ mode, onMode }: { mode: Mode; onMode: (m: Mode) => vo
           <Combo label="Giao diện ứng dụng" options={MODES} value={mode} onChange={onMode} />
         </SettingRow>
 
-        <div className="dx-settings__header">Hành vi</div>
-        {BEHAVIOR.map((o) => (
-          <OptionRow key={o.title} option={o} />
-        ))}
-
         <div className="dx-settings__header">Giới thiệu</div>
         <details className="dx-expander">
           <summary className="dx-setting">
             <InfoRegular className="dx-icon dx-icon--20" />
             <div className="dx-setting__text">
-              <div>&lt;Multi&gt;Dex</div>
-              <div className="dx-setting__desc">Bộ công cụ cho developer, chạy hoàn toàn offline</div>
+              <div>&lt;Win&gt;Dex</div>
+              <div className="dx-setting__desc">Soi cây UI Automation của cửa sổ Windows</div>
             </div>
             <span className="dx-setting__desc">0.1.0</span>
             <ChevronDownRegular className="dx-icon dx-expander__chev" />
@@ -75,7 +52,9 @@ export function Settings({ mode, onMode }: { mode: Mode; onMode: (m: Mode) => vo
           </div>
           <div className="dx-expander__row">
             <span>Giấy phép bên thứ ba</span>
-            <span className="dx-setting__desc">Cascadia Mono (OFL) · Fluent System Icons (MIT)</span>
+            <span className="dx-setting__desc">
+              Cascadia Mono (OFL) · Fluent System Icons (MIT) · uiautomation-rs (Apache-2.0)
+            </span>
           </div>
         </details>
       </div>
