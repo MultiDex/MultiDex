@@ -1,0 +1,782 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>&lt;Win&gt;Dex — soi cây UI Automation của Windows</title>
+    <meta
+      name="description"
+      content="Công cụ desktop đọc cây UI Automation của mọi cửa sổ Windows, lấy AutomationId và sinh sẵn đoạn mã cho pywinauto, uiautomation, FlaUI và PowerShell."
+    />
+    <link rel="icon" type="image/svg+xml" href="icon.svg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Space+Grotesk:wght@400;500;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --ink: #0a0d12;
+        --surface: #141a22;
+        --raised: #1b2430;
+        --line: #26303c;
+        --text: #e8edf4;
+        --muted: #8fa0b5;
+        --accent: #60cdff;
+        --flag: #e81123;
+
+        --sans: "Space Grotesk", "Segoe UI Variable Text", "Segoe UI", system-ui, sans-serif;
+        --mono: "IBM Plex Mono", "Cascadia Mono", Consolas, ui-monospace, monospace;
+
+        --measure: 62ch;
+        --gutter: clamp(20px, 5vw, 64px);
+      }
+
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+      }
+
+      html {
+        -webkit-text-size-adjust: 100%;
+      }
+
+      body {
+        margin: 0;
+        background: var(--ink);
+        color: var(--text);
+        font: 400 17px/1.6 var(--sans);
+        font-feature-settings: "ss01";
+        overflow-x: hidden;
+      }
+
+      a {
+        color: var(--accent);
+        text-underline-offset: 3px;
+      }
+
+      :focus-visible {
+        outline: 2px solid var(--accent);
+        outline-offset: 3px;
+      }
+
+      code,
+      kbd {
+        font-family: var(--mono);
+        font-size: 0.9em;
+      }
+
+      kbd {
+        padding: 2px 6px;
+        border: 1px solid var(--line);
+        border-bottom-width: 2px;
+        border-radius: 4px;
+        background: var(--raised);
+        color: var(--text);
+        white-space: nowrap;
+      }
+
+      .wrap {
+        max-width: 1120px;
+        margin-inline: auto;
+        padding-inline: var(--gutter);
+      }
+
+      /* ── Thanh trên ───────────────────────────────────────────── */
+      .top {
+        display: flex;
+        align-items: center;
+        gap: 24px;
+        padding-block: 20px;
+        border-bottom: 1px solid var(--line);
+      }
+
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-right: auto;
+        font-family: var(--mono);
+        font-size: 15px;
+        font-weight: 600;
+        letter-spacing: -0.01em;
+        color: var(--text);
+        text-decoration: none;
+      }
+
+      .brand img {
+        width: 22px;
+        height: 22px;
+      }
+
+      .brand .tag {
+        color: var(--accent);
+      }
+
+      .top a:not(.brand) {
+        font-size: 15px;
+        color: var(--muted);
+        text-decoration: none;
+      }
+
+      .top a:not(.brand):hover {
+        color: var(--text);
+      }
+
+      /* ── Hero ─────────────────────────────────────────────────── */
+      .hero {
+        display: grid;
+        grid-template-columns: minmax(0, 9fr) minmax(0, 10fr);
+        gap: clamp(32px, 6vw, 72px);
+        align-items: center;
+        padding-block: clamp(56px, 11vw, 128px);
+      }
+
+      /* Mặc định ô lưới không co dưới bề rộng nội dung; không mở khoá thì cây
+         đẩy cả trang rộng ra và chữ bị cắt mất bên phải trên màn hình hẹp. */
+      .hero > * {
+        min-width: 0;
+      }
+
+      h1 {
+        margin: 0 0 24px;
+        font-size: clamp(32px, 4.6vw, 54px);
+        font-weight: 700;
+        line-height: 1.04;
+        letter-spacing: -0.035em;
+        text-wrap: balance;
+      }
+
+      .lede {
+        margin: 0 0 36px;
+        max-width: 46ch;
+        color: var(--muted);
+        font-size: clamp(17px, 1.6vw, 20px);
+        line-height: 1.55;
+      }
+
+      .cta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        align-items: center;
+      }
+
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        padding: 13px 22px;
+        border: 1px solid transparent;
+        border-radius: 6px;
+        background: var(--accent);
+        color: #06121b;
+        font-family: var(--sans);
+        font-size: 16px;
+        font-weight: 500;
+        text-decoration: none;
+      }
+
+      .btn:hover {
+        background: #8bdaff;
+      }
+
+      .btn-quiet {
+        background: transparent;
+        border-color: var(--line);
+        color: var(--text);
+      }
+
+      .btn-quiet:hover {
+        background: var(--surface);
+        border-color: var(--muted);
+      }
+
+      .note {
+        margin: 18px 0 0;
+        color: var(--muted);
+        font-size: 14px;
+      }
+
+      /* ── Cây trong hero ───────────────────────────────────────── */
+      .screen {
+        position: relative;
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        background: var(--surface);
+        box-shadow: 0 24px 60px rgb(0 0 0 / 0.45);
+        overflow: hidden;
+      }
+
+      .screen-bar {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 11px 14px;
+        border-bottom: 1px solid var(--line);
+        color: var(--muted);
+        font-family: var(--mono);
+        font-size: 12px;
+      }
+
+      .screen-bar::before {
+        content: "";
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: var(--line);
+        box-shadow:
+          14px 0 0 var(--line),
+          28px 0 0 var(--line);
+        margin-right: 28px;
+      }
+
+      .tree {
+        margin: 0;
+        padding: 16px 14px 20px;
+        overflow-x: auto;
+        font-family: var(--mono);
+        font-size: 13px;
+        line-height: 2;
+      }
+
+      .tree .row {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding-inline: 8px;
+        white-space: nowrap;
+      }
+
+      .tree .ct {
+        color: var(--accent);
+      }
+
+      .tree .nm {
+        color: var(--text);
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      .tree .dim {
+        color: var(--muted);
+      }
+
+      .tree .aid {
+        margin-left: auto;
+        padding: 1px 8px;
+        border: 1px solid var(--line);
+        border-radius: 4px;
+        color: var(--muted);
+        font-size: 12px;
+      }
+
+      /* Khung đỏ: motif duy nhất dùng màu này trên cả trang */
+      .tree .row.marked {
+        position: relative;
+        border-radius: 3px;
+        box-shadow: inset 0 0 0 2px var(--flag);
+      }
+
+      .tree .row.marked .aid {
+        border-color: color-mix(in srgb, var(--flag) 55%, var(--line));
+        color: var(--text);
+      }
+
+      /* ── Phần nội dung ────────────────────────────────────────── */
+      section {
+        padding-block: clamp(52px, 8vw, 96px);
+        border-top: 1px solid var(--line);
+      }
+
+      h2 {
+        margin: 0 0 14px;
+        font-size: clamp(25px, 3vw, 34px);
+        font-weight: 700;
+        line-height: 1.15;
+        letter-spacing: -0.025em;
+        text-wrap: balance;
+      }
+
+      .say {
+        margin: 0 0 40px;
+        max-width: var(--measure);
+        color: var(--muted);
+        line-height: 1.65;
+      }
+
+      .say:last-child {
+        margin-bottom: 0;
+      }
+
+      /* Danh sách thụt lề: cấu trúc của trang mượn chính cấu trúc của cây */
+      .indent {
+        margin: 0;
+        padding: 0;
+        list-style: none;
+        max-width: 78ch;
+      }
+
+      .indent > li {
+        padding: 20px 0 20px 26px;
+        border-top: 1px solid var(--line);
+        border-left: 2px solid transparent;
+      }
+
+      .indent > li:first-child {
+        border-top: none;
+      }
+
+      .indent > li:hover {
+        border-left-color: var(--accent);
+      }
+
+      .indent h3 {
+        margin: 0 0 6px;
+        font-size: 18px;
+        font-weight: 500;
+        letter-spacing: -0.01em;
+      }
+
+      .indent p {
+        margin: 0;
+        max-width: var(--measure);
+        color: var(--muted);
+        font-size: 15.5px;
+        line-height: 1.6;
+      }
+
+      .indent .key {
+        font-family: var(--mono);
+        color: var(--accent);
+      }
+
+      /* ── Tab ngôn ngữ, thuần CSS ──────────────────────────────── */
+      .langs input {
+        position: absolute;
+        opacity: 0;
+        pointer-events: none;
+      }
+
+      .tabs {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        margin-bottom: -1px;
+      }
+
+      .tabs label {
+        padding: 9px 15px;
+        border: 1px solid transparent;
+        border-bottom: none;
+        border-radius: 7px 7px 0 0;
+        color: var(--muted);
+        font-family: var(--mono);
+        font-size: 13px;
+        cursor: pointer;
+      }
+
+      .tabs label:hover {
+        color: var(--text);
+      }
+
+      .langs pre {
+        display: none;
+        margin: 0;
+        padding: 22px 20px;
+        overflow-x: auto;
+        border: 1px solid var(--line);
+        border-radius: 0 8px 8px 8px;
+        background: var(--surface);
+        font-family: var(--mono);
+        font-size: 13.5px;
+        line-height: 1.75;
+        tab-size: 2;
+      }
+
+      .langs pre .cm {
+        color: var(--muted);
+      }
+
+      .langs pre .st {
+        color: #b6e35a;
+      }
+
+      .langs pre .kw {
+        color: var(--accent);
+      }
+
+      #l1:checked ~ .tabs [for="l1"],
+      #l2:checked ~ .tabs [for="l2"],
+      #l3:checked ~ .tabs [for="l3"],
+      #l4:checked ~ .tabs [for="l4"] {
+        border-color: var(--line);
+        background: var(--surface);
+        color: var(--text);
+      }
+
+      #l1:checked ~ #p1,
+      #l2:checked ~ #p2,
+      #l3:checked ~ #p3,
+      #l4:checked ~ #p4 {
+        display: block;
+      }
+
+      /* ── Bảng focus ───────────────────────────────────────────── */
+      .scroll-x {
+        overflow-x: auto;
+        max-width: 100%;
+      }
+
+      table {
+        width: 100%;
+        max-width: 760px;
+        border-collapse: collapse;
+        font-size: 15.5px;
+      }
+
+      th,
+      td {
+        padding: 13px 16px 13px 0;
+        border-bottom: 1px solid var(--line);
+        text-align: left;
+        vertical-align: top;
+      }
+
+      thead th {
+        color: var(--muted);
+        font-weight: 500;
+        font-size: 14px;
+      }
+
+      tbody th {
+        font-family: var(--mono);
+        font-size: 14px;
+        font-weight: 500;
+        white-space: nowrap;
+      }
+
+      td.no {
+        color: var(--text);
+      }
+
+      td.yes {
+        color: var(--muted);
+      }
+
+      /* ── Tải về ───────────────────────────────────────────────── */
+      .dl {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+        gap: 1px;
+        max-width: 760px;
+        background: var(--line);
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        overflow: hidden;
+      }
+
+      .dl > div {
+        padding: 22px;
+        background: var(--surface);
+      }
+
+      .dl h3 {
+        margin: 0 0 6px;
+        font-family: var(--mono);
+        font-size: 14px;
+        font-weight: 500;
+      }
+
+      .dl p {
+        margin: 0;
+        color: var(--muted);
+        font-size: 14.5px;
+        line-height: 1.55;
+      }
+
+      footer {
+        padding-block: 44px 64px;
+        border-top: 1px solid var(--line);
+        color: var(--muted);
+        font-size: 14.5px;
+      }
+
+      footer p {
+        margin: 0 0 10px;
+        max-width: var(--measure);
+      }
+
+      /* Khoảnh khắc chuyển động duy nhất: khung đỏ chụp vào node.
+         Cộng thêm lên nội dung đã hiện, nên hỏng cũng không mất chữ nào. */
+      @media (prefers-reduced-motion: no-preference) {
+        .tree .row.marked {
+          animation: snap 0.34s cubic-bezier(0.3, 1.4, 0.5, 1) 0.65s backwards;
+        }
+
+        @keyframes snap {
+          from {
+            box-shadow: inset 0 0 0 2px transparent;
+          }
+        }
+      }
+
+      @media (max-width: 860px) {
+        .hero {
+          grid-template-columns: 1fr;
+          gap: 40px;
+        }
+
+        .tree {
+          font-size: 12px;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="wrap">
+      <header class="top">
+        <a class="brand" href="./">
+          <img src="icon.svg" alt="" width="22" height="22" />
+          <span><span class="tag">&lt;Win&gt;</span>Dex</span>
+        </a>
+        <a href="#tai-ve">Tải về</a>
+        <a href="https://github.com/MultiDex/MultiDex">Mã nguồn</a>
+      </header>
+
+      <div class="hero">
+        <div>
+          <h1>Mọi app Windows đều có một bộ xương.</h1>
+          <p class="lede">
+            WinDex đọc cây UI Automation của bất kỳ cửa sổ nào đang mở, để bạn lấy đúng
+            <code>AutomationId</code> cần dùng thay vì mò toạ độ chuột.
+          </p>
+          <div class="cta">
+            <a class="btn" href="#tai-ve">Tải cho Windows</a>
+            <a class="btn btn-quiet" href="https://github.com/MultiDex/MultiDex">Đọc mã nguồn</a>
+          </div>
+          <p class="note">Miễn phí, mã nguồn mở, chạy hoàn toàn offline. Không gửi gì ra ngoài máy.</p>
+        </div>
+
+        <div class="screen">
+          <div class="screen-bar">Cây UI Automation · notepad.exe</div>
+          <div class="tree">
+            <div class="row"><span class="ct">Window</span><span class="nm">Untitled — Notepad</span></div>
+            <div class="row" style="padding-left: 24px">
+              <span class="ct">Pane</span><span class="nm dim">(không tên)</span>
+            </div>
+            <div class="row" style="padding-left: 40px">
+              <span class="ct">MenuBar</span><span class="nm">Ứng dụng</span>
+            </div>
+            <div class="row" style="padding-left: 56px">
+              <span class="ct">MenuItem</span><span class="nm">Tệp</span><span class="aid">FileMenu</span>
+            </div>
+            <div class="row" style="padding-left: 40px">
+              <span class="ct">ToolBar</span><span class="nm dim">(không tên)</span>
+            </div>
+            <div class="row" style="padding-left: 56px">
+              <span class="ct">Button</span><span class="nm">Lưu</span><span class="aid">SaveButton</span>
+            </div>
+            <div class="row marked" style="padding-left: 56px">
+              <span class="ct">Edit</span><span class="nm">Vùng soạn thảo</span><span class="aid">RichEditD2DPT</span>
+            </div>
+            <div class="row" style="padding-left: 40px">
+              <span class="ct">StatusBar</span><span class="nm">Dòng 1, Cột 1</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <section>
+      <div class="wrap">
+        <h2>Phần tốn thời gian nhất không phải là viết code.</h2>
+        <p class="say">
+          Là tìm ra cái nút kia tên gì. Script automation hỏng không phải vì logic sai, mà vì nó bấm vào toạ độ
+          <code>(412, 268)</code> — rồi người dùng đổi độ phân giải. WinDex cho bạn cái tên bền hơn toạ độ.
+        </p>
+
+        <ul class="indent">
+          <li>
+            <h3>Rê chuột lên control rồi bấm <span class="key">Ctrl+Alt+I</span></h3>
+            <p>
+              Phím tắt chạy toàn hệ thống, không cần WinDex đang là cửa sổ hoạt động. Nó tự mở đúng cửa sổ và chọn đúng
+              node trong cây.
+            </p>
+          </li>
+          <li>
+            <h3>Khung đỏ xác nhận bạn chọn đúng</h3>
+            <p>
+              Viền vẽ thẳng lên element trên màn hình. Chuột xuyên qua được nên không chặn thao tác của bạn với app đang
+              soi.
+            </p>
+          </li>
+          <li>
+            <h3>Thử hành động ngay, trước khi viết dòng code nào</h3>
+            <p>
+              Bấm Invoke để xem cái nút có phản ứng không. Đặt giá trị để xem ô nhập có nhận không. Biết được điều đó
+              trước khi mở editor tiết kiệm cả buổi.
+            </p>
+          </li>
+          <li>
+            <h3>Tìm trong cây, chụp ảnh element, xuất cả cây ra JSON</h3>
+            <p>
+              Cây của app lớn có hàng nghìn node. Lọc theo tên hoặc ControlType để tìm. Xuất JSON rồi diff hai lần chạy
+              để biết bản cập nhật đã đổi những gì.
+            </p>
+          </li>
+        </ul>
+      </div>
+    </section>
+
+    <section>
+      <div class="wrap">
+        <h2>Chọn xong là có sẵn đoạn mã.</h2>
+        <p class="say">
+          WinDex đọc xem element hỗ trợ pattern nào rồi sinh đúng lời gọi cho thư viện bạn dùng. Bấm sao chép, dán vào
+          script.
+        </p>
+
+        <div class="langs">
+          <input type="radio" name="lang" id="l1" checked />
+          <input type="radio" name="lang" id="l2" />
+          <input type="radio" name="lang" id="l3" />
+          <input type="radio" name="lang" id="l4" />
+          <div class="tabs">
+            <label for="l1">uiautomation</label>
+            <label for="l2">pywinauto</label>
+            <label for="l3">FlaUI</label>
+            <label for="l4">PowerShell</label>
+          </div>
+
+          <pre id="p1"><span class="kw">import</span> uiautomation <span class="kw">as</span> auto
+
+win = auto.WindowControl(ClassName=<span class="st">'Notepad'</span>, Name=<span class="st">'Untitled — Notepad'</span>)
+el = win.EditControl(AutomationId=<span class="st">'RichEditD2DPT'</span>)
+el.GetValuePattern().SetValue(<span class="st">'Xin chào'</span>)</pre>
+
+          <pre id="p2"><span class="kw">from</span> pywinauto <span class="kw">import</span> Desktop
+
+win = Desktop(backend=<span class="st">'uia'</span>).window(class_name=<span class="st">'Notepad'</span>, title=<span class="st">'Untitled — Notepad'</span>)
+el = win.child_window(auto_id=<span class="st">'RichEditD2DPT'</span>, control_type=<span class="st">'Edit'</span>)
+el.set_edit_text(<span class="st">'Xin chào'</span>)</pre>
+
+          <pre id="p3"><span class="kw">using</span> FlaUI.Core.AutomationElements;
+<span class="kw">using</span> FlaUI.UIA3;
+
+<span class="kw">using var</span> automation = <span class="kw">new</span> UIA3Automation();
+<span class="kw">var</span> win = automation.GetDesktop().FindFirstChild(cf =&gt; cf.ByClassName(<span class="st">"Notepad"</span>));
+<span class="kw">var</span> el = win.FindFirstDescendant(cf =&gt; cf.ByAutomationId(<span class="st">"RichEditD2DPT"</span>));
+el.AsTextBox().Text = <span class="st">"Xin chào"</span>;</pre>
+
+          <pre id="p4">Add-Type -AssemblyName UIAutomationClient, UIAutomationTypes
+$root = [Windows.Automation.AutomationElement]::RootElement
+
+$winCond = New-Object Windows.Automation.PropertyCondition(
+  [Windows.Automation.AutomationElement]::ClassNameProperty, <span class="st">'Notepad'</span>)
+$win = $root.FindFirst(<span class="st">'Children'</span>, $winCond)
+
+$elCond = New-Object Windows.Automation.PropertyCondition(
+  [Windows.Automation.AutomationElement]::AutomationIdProperty, <span class="st">'RichEditD2DPT'</span>)
+$el = $win.FindFirst(<span class="st">'Descendants'</span>, $elCond)
+$el.GetCurrentPattern([Windows.Automation.ValuePattern]::Pattern).SetValue(<span class="st">'Xin chào'</span>)</pre>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="wrap">
+        <h2>Thử trên app thật mà không chen ngang người dùng.</h2>
+        <p class="say">
+          Hầu hết thao tác đi qua pattern của UI Automation — nói thẳng với control chứ không giả lập chuột hay bàn
+          phím. App đích không mất focus, con trỏ của bạn không nhảy đi đâu.
+        </p>
+
+        <div class="scroll-x">
+          <table>
+            <thead>
+              <tr>
+                <th scope="col">Thao tác</th>
+                <th scope="col">Cơ chế</th>
+                <th scope="col">Lấy focus của app đích</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <th scope="row">Invoke</th>
+                <td>InvokePattern</td>
+                <td class="no">Không</td>
+              </tr>
+              <tr>
+                <th scope="row">Toggle</th>
+                <td>TogglePattern</td>
+                <td class="no">Không</td>
+              </tr>
+              <tr>
+                <th scope="row">Đặt giá trị</th>
+                <td>ValuePattern</td>
+                <td class="no">Không</td>
+              </tr>
+              <tr>
+                <th scope="row">Chụp ảnh</th>
+                <td>PrintWindow</td>
+                <td class="no">Không, kể cả khi cửa sổ bị che</td>
+              </tr>
+              <tr>
+                <th scope="row">Gửi phím</th>
+                <td>SendInput</td>
+                <td class="yes">Có — phím chỉ đến được element đang giữ focus</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <section id="tai-ve">
+      <div class="wrap">
+        <h2>Tải về</h2>
+        <p class="say">
+          Bản mới nhất được dựng tự động từ nhánh <code>main</code>. Chọn bản portable nếu chỉ muốn chạy thử.
+        </p>
+
+        <div class="cta" style="margin-bottom: 36px">
+          <a class="btn" href="https://github.com/MultiDex/MultiDex/releases/latest">Tới trang Releases</a>
+        </div>
+
+        <div class="dl">
+          <div>
+            <h3>WinDex_x64-portable.exe</h3>
+            <p>Chạy ngay, không cài đặt, không để lại gì trong registry.</p>
+          </div>
+          <div>
+            <h3>WinDex_x64-setup.exe</h3>
+            <p>Bộ cài NSIS, có shortcut Start menu và mục gỡ cài đặt.</p>
+          </div>
+        </div>
+
+        <p class="say" style="margin-top: 32px">
+          Cần Windows 10 trở lên và Microsoft Edge WebView2 Runtime — Windows 11 đã có sẵn, bộ cài tự tải về nếu thiếu.
+          File chưa ký số nên lần đầu mở SmartScreen sẽ cảnh báo: chọn
+          <strong>More info → Run anyway</strong>.
+        </p>
+      </div>
+    </section>
+
+    <footer>
+      <div class="wrap">
+        <p>
+          Dựng bằng Tauri 2, React và Rust. Mã nguồn trên
+          <a href="https://github.com/MultiDex/MultiDex">GitHub</a>.
+        </p>
+        <p>
+          Dùng <a href="https://crates.io/crates/uiautomation">uiautomation-rs</a> (Apache-2.0),
+          <a href="https://github.com/microsoft/cascadia-code">Cascadia Mono</a> (OFL) và
+          <a href="https://github.com/microsoft/fluentui-system-icons">Fluent System Icons</a> (MIT).
+        </p>
+      </div>
+    </footer>
+  </body>
+</html>

@@ -4,6 +4,8 @@
 
 [![Build](https://github.com/MultiDex/MultiDex/actions/workflows/build.yml/badge.svg)](https://github.com/MultiDex/MultiDex/actions/workflows/build.yml)
 
+Trang giới thiệu: **<https://multidex.github.io/MultiDex/>**
+
 Soi cây UI Automation của mọi cửa sổ Windows đang mở, để lấy `AutomationId` và `ControlType` khi viết script automation / RPA. Chạy hoàn toàn offline, giao diện theo Fluent 2 / Windows 11, dựng bằng Tauri 2 + React + TypeScript.
 
 Khác với app web, phần mềm native (Win32, WPF, WinForms, UWP) không có DevTools. Thứ thay thế là **UI Automation** — cây phần tử do chính Windows dựng, vốn phục vụ screen reader, và cũng là nền tảng của pywinauto, FlaUI, Playwright for Windows. \<Win\>Dex đọc cây đó.
