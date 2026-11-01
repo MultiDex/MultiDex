@@ -247,11 +247,9 @@ fn perform(el: &UIElement, action: &str, text: &str) -> uiautomation::Result<Str
             .set_value(text)
             .map(|_| done("Đã đặt giá trị")),
         "focus" => el.set_focus().map(|_| done("Đã focus")),
-        "keys" => {
-            el.set_focus()?;
-            // 20ms giữa các phím: gõ quá nhanh thì nhiều app bỏ sót ký tự
-            el.send_keys(text, 20).map(|_| done("Đã gửi phím"))
-        }
+        // send_keys tự focus trước khi gõ, nên không cần gọi set_focus ở đây.
+        // 20ms giữa các phím: gõ quá nhanh thì nhiều app bỏ sót ký tự.
+        "keys" => el.send_keys(text, 20).map(|_| done("Đã gửi phím")),
         _ => Err(uiautomation::Error::new(-1, "Hành động không hợp lệ")),
     }
 }

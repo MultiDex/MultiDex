@@ -450,8 +450,11 @@ export function WindowInspector({ onToast }: { onToast: (message: string) => voi
                     </button>
                   </div>
                   <p className="dx-uia__hint">
-                    Gửi phím sẽ focus element rồi gõ thật vào app đó. Cú pháp đặc biệt: <code>{"{enter}"}</code>,{" "}
-                    <code>{"{tab}"}</code>, <code>{"{esc}"}</code>.
+                    <strong>Invoke</strong>, <strong>Toggle</strong>, <strong>Đặt giá trị</strong> và{" "}
+                    <strong>Chụp ảnh</strong> không cướp focus, app đích không hề bị chen ngang. <strong>Focus</strong>{" "}
+                    và <strong>Gửi phím</strong> thì có — <code>SendInput</code> chỉ đi tới element đang giữ focus nên
+                    không có đường vòng. Gửi phím nhận <code>{"{enter}"}</code>, <code>{"{tab}"}</code>,{" "}
+                    <code>{"{esc}"}</code>.
                   </p>
 
                   {shot && (
